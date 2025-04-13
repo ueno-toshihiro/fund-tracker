@@ -1,91 +1,95 @@
-import { mockFunds } from "./mock-data"
-import { mockFundDetails } from "./mock-fund-details"
+import { mockFunds } from "./mock-data";
+import { mockFundDetails } from "./mock-fund-details";
 
 export interface Fund {
-  fundCode: string
-  fundName: string
-  basePrice: number
-  basePriceDate: string
+  fundCode: string;
+  fundName: string;
+  basePrice: number;
+  basePriceDate: string;
   priceChanges: {
-    day1: number
-    day2: number
-    day3: number
-    day4: number
-    day5: number
-  }
+    day1: number;
+    day2: number;
+    day3: number;
+    day4: number;
+    day5: number;
+  };
 }
 
 export interface PerformanceData {
-  dates: string[]
-  prices: number[]
-  benchmark: number[]
+  dates: string[];
+  prices: number[];
+  benchmark: number[];
 }
 
 export interface FundDetail extends Fund {
   priceChanges: {
-    day1: number
-    day2: number
-    day3: number
-    day4: number
-    day5: number
-    day1Amount: number
-  }
-  netAssets: number
+    day1: number;
+    day2: number;
+    day3: number;
+    day4: number;
+    day5: number;
+    day1Amount: number;
+  };
+  netAssets: number;
   returns: {
-    oneMonth: number
-    threeMonths: number
-    sixMonths: number
-    oneYear: number
-    threeYears: number
-  }
+    oneMonth: number;
+    threeMonths: number;
+    sixMonths: number;
+    oneYear: number;
+    threeYears: number;
+  };
   risk: {
-    standardDeviation: number
-    sharpeRatio: number
-    maxDrawdown: number
-  }
+    standardDeviation: number;
+    sharpeRatio: number;
+    maxDrawdown: number;
+  };
   fees: {
-    purchaseFee: string
-    redemptionFee: string
-    managementFee: number
+    purchaseFee: string;
+    redemptionFee: string;
+    managementFee: number;
     managementFeeBreakdown: {
-      company: number
-      distributor: number
-      trustee: number
-    }
-  }
+      company: number;
+      distributor: number;
+      trustee: number;
+    };
+  };
   info: {
-    inceptionDate: string
-    maturityDate: string
-    dividendFrequency: string
-    benchmark: string
-    description: string
-  }
-  performanceData: PerformanceData
+    inceptionDate: string;
+    maturityDate: string;
+    dividendFrequency: string;
+    benchmark: string;
+    description: string;
+  };
+  performanceData: PerformanceData;
 }
 
 export async function getFunds(): Promise<Fund[]> {
   try {
     // MUFG Asset Management APIのエンドポイント
-    const response = await fetch("https://www.am.mufg.jp/fund/api/v1/funds", {
+    const endpoint = "https://developer.am.mufg.jp/fund_information_all_latest";
+    const response = await fetch(endpoint, {
       // 実際のAPIが利用可能になったら以下のオプションを調整してください
       cache: "no-store",
-    })
+    });
+    // https://developer.am.mufg.jp/fund_information_all_latest
 
     if (!response.ok) {
       // APIが利用できない場合はモックデータを返す
-      console.warn("API unavailable, using mock data")
-      return mockFunds
+      console.warn("API unavailable, using mock data");
+      return mockFunds;
     }
 
-    const data = await response.json()
+    const data = await response.json();
+
+    console.log("API response:", data);
 
     // APIレスポンスを整形して返す
     // 注: 実際のAPIレスポンス形式に合わせて調整が必要です
-    return data.funds.map((fund: any) => ({
+    return data.datasets.map((fund: any) => ({
       fundCode: fund.fund_cd,
       fundName: fund.fund_name,
-      basePrice: fund.base_price,
-      basePriceDate: fund.base_price_date,
+      basePrice: fund.nav,
+      basePriceDate: fund.base_date,
       priceChanges: {
         day1: fund.price_change_1d || 0,
         day2: fund.price_change_2d || 0,
@@ -93,29 +97,36 @@ export async function getFunds(): Promise<Fund[]> {
         day4: fund.price_change_4d || 0,
         day5: fund.price_change_5d || 0,
       },
-    }))
+    }));
   } catch (error) {
-    console.error("Error fetching fund data:", error)
+    console.error("Error fetching fund data:", error);
     // エラー時はモックデータを返す
-    return mockFunds
+    return mockFunds;
   }
 }
 
-export async function getFundDetail(fundCode: string): Promise<FundDetail | null> {
+export async function getFundDetail(
+  fundCode: string
+): Promise<FundDetail | null> {
   try {
     // MUFG Asset Management APIのエンドポイント
-    const response = await fetch(`https://www.am.mufg.jp/fund/api/v1/funds/${fundCode}`, {
-      cache: "no-store",
-    })
+    const response = await fetch(
+      `https://www.am.mufg.jp/fund/api/v1/funds/${fundCode}`,
+      {
+        cache: "no-store",
+      }
+    );
 
     if (!response.ok) {
       // APIが利用できない場合はモックデータを返す
-      console.warn("API unavailable, using mock data")
-      const mockDetail = mockFundDetails.find((fund) => fund.fundCode === fundCode)
-      return mockDetail || null
+      console.warn("API unavailable, using mock data");
+      const mockDetail = mockFundDetails.find(
+        (fund) => fund.fundCode === fundCode
+      );
+      return mockDetail || null;
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     // APIレスポンスを整形して返す
     // 注: 実際のAPIレスポンス形式に合わせて調整が必要です
@@ -167,11 +178,13 @@ export async function getFundDetail(fundCode: string): Promise<FundDetail | null
         prices: data.performance_data.prices,
         benchmark: data.performance_data.benchmark,
       },
-    }
+    };
   } catch (error) {
-    console.error("Error fetching fund detail:", error)
+    console.error("Error fetching fund detail:", error);
     // エラー時はモックデータを返す
-    const mockDetail = mockFundDetails.find((fund) => fund.fundCode === fundCode)
-    return mockDetail || null
+    const mockDetail = mockFundDetails.find(
+      (fund) => fund.fundCode === fundCode
+    );
+    return mockDetail || null;
   }
 }
