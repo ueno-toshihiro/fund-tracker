@@ -91,7 +91,7 @@ export async function getFunds(): Promise<Fund[]> {
       basePrice: fund.nav,
       basePriceDate: fund.base_date,
       priceChanges: {
-        day1: fund.price_change_1d || 0,
+        day1: Number(fund.cmp_prev_day || 0),
         day2: fund.price_change_2d || 0,
         day3: fund.price_change_3d || 0,
         day4: fund.price_change_4d || 0,
@@ -136,7 +136,7 @@ export async function getFundDetail(
       basePrice: data.base_price,
       basePriceDate: data.base_price_date,
       priceChanges: {
-        day1: data.price_change_1d || 0,
+        day1: data.cmp_prev_day || 0,
         day2: data.price_change_2d || 0,
         day3: data.price_change_3d || 0,
         day4: data.price_change_4d || 0,
