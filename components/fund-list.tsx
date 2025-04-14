@@ -26,11 +26,13 @@ import Link from "next/link";
 type SortField =
   | "fundName"
   | "basePrice"
-  | "day1"
-  | "day2"
-  | "day3"
-  | "day4"
-  | "day5";
+  | "cmpPrevDay"
+  | "netassetsChangeCmpPrevDay"
+  | "percentageChange1m"
+  | "percentageChange3m"
+  | "percentageChange6m"
+  | "percentageChange1y"
+  | "percentageChange3y";
 type SortDirection = "asc" | "desc";
 
 interface FundListProps {
@@ -153,25 +155,33 @@ export default function FundList({
           valueA = a.basePrice;
           valueB = b.basePrice;
           break;
-        case "day1":
-          valueA = a.priceChanges.day1;
-          valueB = b.priceChanges.day1;
+        case "cmpPrevDay":
+          valueA = a.priceChanges.cmpPrevDay;
+          valueB = b.priceChanges.cmpPrevDay;
           break;
-        case "day2":
-          valueA = a.priceChanges.day2;
-          valueB = b.priceChanges.day2;
+        case "netassetsChangeCmpPrevDay":
+          valueA = a.priceChanges.netassetsChangeCmpPrevDay;
+          valueB = b.priceChanges.netassetsChangeCmpPrevDay;
           break;
-        case "day3":
-          valueA = a.priceChanges.day3;
-          valueB = b.priceChanges.day3;
+        case "percentageChange1m":
+          valueA = a.priceChanges.percentageChange1m;
+          valueB = b.priceChanges.percentageChange1m;
           break;
-        case "day4":
-          valueA = a.priceChanges.day4;
-          valueB = b.priceChanges.day4;
+        case "percentageChange3m":
+          valueA = a.priceChanges.percentageChange3m;
+          valueB = b.priceChanges.percentageChange3m;
           break;
-        case "day5":
-          valueA = a.priceChanges.day5;
-          valueB = b.priceChanges.day5;
+        case "percentageChange6m":
+          valueA = a.priceChanges.percentageChange6m;
+          valueB = b.priceChanges.percentageChange6m;
+          break;
+        case "percentageChange1y":
+          valueA = a.priceChanges.percentageChange1y;
+          valueB = b.priceChanges.percentageChange1y;
+          break;
+        case "percentageChange3y":
+          valueA = a.priceChanges.percentageChange3y;
+          valueB = b.priceChanges.percentageChange3y;
           break;
         default:
           valueA = a.fundName;
@@ -202,7 +212,7 @@ export default function FundList({
     return (
       <span className={color}>
         {prefix}
-        {change.toLocaleString()} 
+        {change.toLocaleString()}
       </span>
     );
   };
@@ -246,11 +256,15 @@ export default function FundList({
             <SelectContent>
               <SelectItem value="fundName">ファンド名</SelectItem>
               <SelectItem value="basePrice">基準価格</SelectItem>
-              <SelectItem value="day1">前日比（円）</SelectItem>
-              <SelectItem value="day2">2日変動</SelectItem>
-              <SelectItem value="day3">3日変動</SelectItem>
-              <SelectItem value="day4">4日変動</SelectItem>
-              <SelectItem value="day5">5日変動</SelectItem>
+              <SelectItem value="cmpPrevDay">前日比（円）</SelectItem>
+              <SelectItem value="netassetsChangeCmpPrevDay">
+                前日比（%）
+              </SelectItem>
+              <SelectItem value="percentageChange1m">1ヶ月（%）</SelectItem>
+              <SelectItem value="percentageChange3m">3ヶ月（%）</SelectItem>
+              <SelectItem value="percentageChange6m">6ヶ月（%）</SelectItem>
+              <SelectItem value="percentageChange1y">1年（%）</SelectItem>
+              <SelectItem value="percentageChange3y">3年（%）</SelectItem>
             </SelectContent>
           </Select>
           <Button
@@ -273,10 +287,12 @@ export default function FundList({
               <TableHead className="w-[300px]">ファンド名</TableHead>
               <TableHead>基準価格</TableHead>
               <TableHead>前日比（円）</TableHead>
-              <TableHead>2日変動</TableHead>
-              <TableHead>3日変動</TableHead>
-              <TableHead>4日変動</TableHead>
-              <TableHead>5日変動</TableHead>
+              <TableHead>前日比（%）</TableHead>
+              <TableHead>1ヶ月（%）</TableHead>
+              <TableHead>3ヶ月（%）</TableHead>
+              <TableHead>6ヶ月（%）</TableHead>
+              <TableHead>1年（%）</TableHead>
+              <TableHead>3年（%）</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -311,19 +327,27 @@ export default function FundList({
                   </TableCell>
                   <TableCell>{fund.basePrice.toLocaleString()} 円</TableCell>
                   <TableCell>
-                    {renderPriceChange(fund.priceChanges.day1)}
+                    {renderPriceChange(fund.priceChanges.cmpPrevDay)}
                   </TableCell>
                   <TableCell>
-                    {renderPriceChange(fund.priceChanges.day2)}
+                    {renderPriceChange(
+                      fund.priceChanges.netassetsChangeCmpPrevDay
+                    )}
                   </TableCell>
                   <TableCell>
-                    {renderPriceChange(fund.priceChanges.day3)}
+                    {renderPriceChange(fund.priceChanges.percentageChange1m)}
                   </TableCell>
                   <TableCell>
-                    {renderPriceChange(fund.priceChanges.day4)}
+                    {renderPriceChange(fund.priceChanges.percentageChange3m)}
                   </TableCell>
                   <TableCell>
-                    {renderPriceChange(fund.priceChanges.day5)}
+                    {renderPriceChange(fund.priceChanges.percentageChange6m)}
+                  </TableCell>
+                  <TableCell>
+                    {renderPriceChange(fund.priceChanges.percentageChange1y)}
+                  </TableCell>
+                  <TableCell>
+                    {renderPriceChange(fund.priceChanges.percentageChange3y)}
                   </TableCell>
                 </TableRow>
               ))

@@ -7,11 +7,13 @@ export interface Fund {
   basePrice: number;
   basePriceDate: string;
   priceChanges: {
-    day1: number;
-    day2: number;
-    day3: number;
-    day4: number;
-    day5: number;
+    cmpPrevDay: number;
+    netassetsChangeCmpPrevDay: number;
+    percentageChange1m: number;
+    percentageChange3m: number;
+    percentageChange6m: number;
+    percentageChange1y: number;
+    percentageChange3y: number;
   };
 }
 
@@ -23,11 +25,13 @@ export interface PerformanceData {
 
 export interface FundDetail extends Fund {
   priceChanges: {
-    day1: number;
-    day2: number;
-    day3: number;
-    day4: number;
-    day5: number;
+    cmpPrevDay: number;
+    netassetsChangeCmpPrevDay: number;
+    percentageChange1m: number;
+    percentageChange3m: number;
+    percentageChange6m: number;
+    percentageChange1y: number;
+    percentageChange3y: number;
     day1Amount: number;
   };
   netAssets: number;
@@ -91,11 +95,13 @@ export async function getFunds(): Promise<Fund[]> {
       basePrice: fund.nav,
       basePriceDate: fund.base_date,
       priceChanges: {
-        day1: Number(fund.cmp_prev_day || 0),
-        day2: fund.price_change_2d || 0,
-        day3: fund.price_change_3d || 0,
-        day4: fund.price_change_4d || 0,
-        day5: fund.price_change_5d || 0,
+        cmpPrevDay: Number(fund.cmp_prev_day || 0),
+        netassetsChangeCmpPrevDay: Number(fund.netassets_change_cmp_prev_day) || 0,
+        percentageChange1m: Number(fund.percentage_change_1m) || 0,
+        percentageChange3m: Number(fund.percentage_change_3m) || 0,
+        percentageChange6m: Number(fund.percentage_change_6m) || 0,
+        percentageChange1y: Number(fund.percentage_change_1y) || 0,
+        percentageChange3y: Number(fund.percentage_change_3y) || 0,
       },
     }));
   } catch (error) {
@@ -136,11 +142,13 @@ export async function getFundDetail(
       basePrice: data.base_price,
       basePriceDate: data.base_price_date,
       priceChanges: {
-        day1: data.cmp_prev_day || 0,
-        day2: data.price_change_2d || 0,
-        day3: data.price_change_3d || 0,
-        day4: data.price_change_4d || 0,
-        day5: data.price_change_5d || 0,
+        cmpPrevDay: data.cmp_prev_day || 0,
+        netassetsChangeCmpPrevDay: data.price_change_2d || 0,
+        percentageChange1m: data.price_change_3d || 0,
+        percentageChange3m: data.price_change_4d || 0,
+        percentageChange6m: data.price_change_5d || 0,
+        percentageChange1y: data.price_change_1y || 0,
+        percentageChange3y: data.price_change_3y || 0,
         day1Amount: data.price_change_1d_amount || 0,
       },
       netAssets: data.net_assets,
