@@ -12,16 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Star, ArrowUpDown } from "lucide-react";
-import Link from "next/link";
+import FundListTable from "./fund-list-table";
 
 type SortField =
   | "fundName"
@@ -200,23 +192,6 @@ export default function FundList({
     return result;
   }, [funds, searchTerm, filterFavorites, favorites, sortField, sortDirection]);
 
-  // 価格変動の表示用関数
-  const renderPriceChange = (change: number) => {
-    const color =
-      change > 0
-        ? "text-green-600"
-        : change < 0
-        ? "text-red-600"
-        : "text-gray-600";
-    const prefix = change > 0 ? "+" : "";
-    return (
-      <span className={color}>
-        {prefix}
-        {change.toLocaleString()}
-      </span>
-    );
-  };
-
   return (
     <div className="space-y-4">
       {useLocalStorage && (
@@ -279,88 +254,12 @@ export default function FundList({
         </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-10"></TableHead>
-              <TableHead className="w-[300px]">ファンド名</TableHead>
-              <TableHead>基準価格</TableHead>
-              <TableHead>前日比（円）</TableHead>
-              <TableHead>前日比（%）</TableHead>
-              <TableHead>1ヶ月（%）</TableHead>
-              <TableHead>3ヶ月（%）</TableHead>
-              <TableHead>6ヶ月（%）</TableHead>
-              <TableHead>1年（%）</TableHead>
-              <TableHead>3年（%）</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredAndSortedFunds.length > 0 ? (
-              filteredAndSortedFunds.map((fund) => (
-                <TableRow key={fund.fundCode}>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleToggleFavorite(fund.fundCode)}
-                    >
-                      <Star
-                        className={`h-4 w-4 ${
-                          favorites.includes(fund.fundCode)
-                            ? "fill-yellow-400"
-                            : ""
-                        }`}
-                      />
-                    </Button>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/funds/${fund.fundCode}`}
-                      className="hover:underline text-primary"
-                    >
-                      {fund.fundName}
-                    </Link>
-                    <div className="text-xs text-muted-foreground">
-                      {fund.fundCode}
-                    </div>
-                  </TableCell>
-                  <TableCell>{fund.basePrice.toLocaleString()} 円</TableCell>
-                  <TableCell>
-                    {renderPriceChange(fund.priceChanges.cmpPrevDay)}
-                  </TableCell>
-                  <TableCell>
-                    {renderPriceChange(
-                      fund.priceChanges.netassetsChangeCmpPrevDay
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {renderPriceChange(fund.priceChanges.percentageChange1m)}
-                  </TableCell>
-                  <TableCell>
-                    {renderPriceChange(fund.priceChanges.percentageChange3m)}
-                  </TableCell>
-                  <TableCell>
-                    {renderPriceChange(fund.priceChanges.percentageChange6m)}
-                  </TableCell>
-                  <TableCell>
-                    {renderPriceChange(fund.priceChanges.percentageChange1y)}
-                  </TableCell>
-                  <TableCell>
-                    {renderPriceChange(fund.priceChanges.percentageChange3y)}
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
-                  該当するファンドがありません
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      {/* ファンド一覧 Table */}
+      <FundListTable
+        filteredAndSortedFunds={filteredAndSortedFunds}
+        favorites={favorites}
+        handleToggleFavorite={handleToggleFavorite}
+      />
     </div>
   );
 }
