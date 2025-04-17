@@ -86,16 +86,15 @@ const FundList: React.FC<FundListProps> = ({
               <TableRow key={fund.fundCode}>
                 <TableCell>
                   <Button
-                    variant="outlined"
                     size="small"
                     onClick={() => handleToggleFavorite(fund.fundCode)}
                   >
                     <Star
-                      className={`h-4 w-4 ${
+                      color={
                         favorites.includes(fund.fundCode)
-                          ? "fill-yellow-400"
-                          : ""
-                      }`}
+                          ? "warning"
+                          : undefined
+                      }
                     />
                   </Button>
                 </TableCell>
