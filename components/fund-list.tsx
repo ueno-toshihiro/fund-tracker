@@ -103,7 +103,17 @@ export default function FundList({
           setFavorites(favorites.filter((code) => code !== fundCode));
         }
       }
+      return;
     }
+
+    // エラーが発生した場合はローカルストレージに切り替え
+    setUseLocalStorage(true);
+    const newFavorites = favorites.includes(fundCode)
+      ? favorites.filter((code) => code !== fundCode)
+      : [...favorites, fundCode];
+
+    setFavorites(newFavorites);
+    saveLocalFavorites(newFavorites);
   };
 
   // ソート切り替え
@@ -115,6 +125,14 @@ export default function FundList({
       setSortDirection("asc");
     }
   };
+
+  // Load searchTerm from local storage on component mount
+  useEffect(() => {
+    const savedSearchTerm = localStorage.getItem("searchTerm");
+    if (savedSearchTerm) {
+      setSearchTerm(savedSearchTerm);
+    }
+  }, []);
 
   // フィルタリングとソートを適用したファンドリスト
   const filteredAndSortedFunds = useMemo(() => {
@@ -180,17 +198,25 @@ export default function FundList({
           valueB = b.fundName;
       }
 
-      if (typeof valueA === "string") {
+      if (typeof valueA === "string" && typeof valueB === "string") {
         return sortDirection === "asc"
           ? valueA.localeCompare(valueB)
           : valueB.localeCompare(valueA);
       } else {
+        if (typeof valueA !== "number" || typeof valueB !== "number") {
+          return 0;
+        }
         return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
       }
     });
 
     return result;
   }, [funds, searchTerm, filterFavorites, favorites, sortField, sortDirection]);
+
+  const searchTermHandler = (value: string) => {
+    setSearchTerm(value);
+    localStorage.setItem("searchTerm", value);
+  };
 
   return (
     <div className="space-y-4">
@@ -206,7 +232,7 @@ export default function FundList({
           <Input
             placeholder="ファンド名または証券コードで検索"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => searchTermHandler(e.target.value)}
             className="max-w-md"
           />
         </div>
