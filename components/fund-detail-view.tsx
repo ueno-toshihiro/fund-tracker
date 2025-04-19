@@ -1,68 +1,81 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { FundDetail } from "@/lib/api"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Download, Star, Share2 } from "lucide-react"
-import Link from "next/link"
-import { toggleFavorite } from "@/app/actions"
-import PerformanceChart from "@/components/performance-chart"
+import { useState } from "react";
+import type { FundDetail } from "@/lib/api";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Download, Star, Share2 } from "lucide-react";
+import Link from "next/link";
+import { toggleFavorite } from "@/app/actions";
+import PerformanceChart from "@/components/performance-chart";
 
 interface FundDetailViewProps {
-  fund: FundDetail
+  fund: FundDetail;
 }
 
 export default function FundDetailView({ fund }: FundDetailViewProps) {
-  const [isFavorite, setIsFavorite] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const handleToggleFavorite = async () => {
-    const result = await toggleFavorite(fund.fundCode)
+    const result = await toggleFavorite(fund.fundCd);
     if (result.success && result.isFavorite !== null) {
-      setIsFavorite(result.isFavorite)
+      setIsFavorite(result.isFavorite);
     }
-  }
+  };
 
   // 価格変動の表示用関数
-  const renderPriceChange = (change: number) => {
-    const color = change > 0 ? "text-green-600" : change < 0 ? "text-red-600" : "text-gray-600"
-    const prefix = change > 0 ? "+" : ""
+  const renderPriceChange = (change: string | number) => {
+    const value = typeof change === "string" ? parseFloat(change) : change;
+    const color =
+      value > 0
+        ? "text-green-600"
+        : value < 0
+        ? "text-red-600"
+        : "text-gray-600";
+    const prefix = value > 0 ? "+" : "";
     return (
       <span className={color}>
         {prefix}
-        {change.toFixed(2)}%
+        {isNaN(value) ? "-" : value.toFixed(2)}%
       </span>
-    )
-  }
+    );
+  };
 
   return (
     <div className="space-y-6">
       {/* ヘッダー部分 */}
       <div className="flex flex-col gap-4">
-        <Link href="/" className="flex items-center text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          href="/"
+          className="flex items-center text-sm text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="mr-1 h-4 w-4" />
           ファンド一覧に戻る
         </Link>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">{fund.fundName}</h1>
-            <p className="text-muted-foreground">{fund.fundCode}</p>
+            <div className="text-xl font-bold mb-2">{fund.fundName}</div>
+            <div className="text-sm text-gray-500 mb-2">
+              ファンドコード: {fund.fundCd}
+            </div>
           </div>
 
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleToggleFavorite}>
-              <Star className={`mr-1 h-4 w-4 ${isFavorite ? "fill-yellow-400" : ""}`} />
+              <Star
+                className={`mr-1 h-4 w-4 ${
+                  isFavorite ? "fill-yellow-400" : ""
+                }`}
+              />
               お気に入り
-            </Button>
-            <Button variant="outline" size="sm">
-              <Share2 className="mr-1 h-4 w-4" />
-              共有
-            </Button>
-            <Button variant="outline" size="sm">
-              <Download className="mr-1 h-4 w-4" />
-              目論見書
             </Button>
           </div>
         </div>
@@ -76,22 +89,39 @@ export default function FundDetailView({ fund }: FundDetailViewProps) {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">基準価額</h3>
-              <p className="text-2xl font-bold">{fund.basePrice.toLocaleString()} 円</p>
-              <p className="text-sm">{fund.basePriceDate} 現在</p>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                基準価額
+              </h3>
+              <p className="text-2xl font-bold">
+                {Number(fund.nav).toLocaleString()} 円
+              </p>
+              <div className="text-sm text-gray-500 mb-2">
+                基準日: {fund.baseDate}
+              </div>{" "}
+              現在
             </div>
 
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">前日比</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                前日比
+              </h3>
               <p className="text-2xl font-bold flex items-center">
-                {renderPriceChange(fund.priceChanges.day1)}
-                <span className="text-base ml-2">({fund.priceChanges.day1Amount.toLocaleString()} 円)</span>
+                <div>
+                  前日比: {renderPriceChange(fund.netassetsChangeCmpPrevDay)}
+                  <span className="ml-2 text-xs text-gray-500">
+                    ({fund.cmpPrevDay})
+                  </span>
+                </div>
               </p>
             </div>
 
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">純資産総額</h3>
-              <p className="text-2xl font-bold">{fund.netAssets.toLocaleString()} 億円</p>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                純資産総額
+              </h3>
+              <p className="text-2xl font-bold">
+                {Number(fund.netassets).toLocaleString()} 円
+              </p>
             </div>
           </div>
         </CardContent>
@@ -102,22 +132,10 @@ export default function FundDetailView({ fund }: FundDetailViewProps) {
         <TabsList className="grid grid-cols-4 mb-4">
           <TabsTrigger value="performance">パフォーマンス</TabsTrigger>
           <TabsTrigger value="risk">リスク指標</TabsTrigger>
-          <TabsTrigger value="fee">手数料・コスト</TabsTrigger>
-          <TabsTrigger value="info">ファンド情報</TabsTrigger>
         </TabsList>
 
         {/* パフォーマンスタブ */}
         <TabsContent value="performance" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>基準価額の推移</CardTitle>
-              <CardDescription>直近1年間の基準価額の推移</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <PerformanceChart data={fund.performanceData} />
-            </CardContent>
-          </Card>
-
           <Card>
             <CardHeader>
               <CardTitle>期間別リターン</CardTitle>
@@ -125,24 +143,22 @@ export default function FundDetailView({ fund }: FundDetailViewProps) {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">1ヶ月</h3>
-                  <p className="text-xl font-bold">{renderPriceChange(fund.returns.oneMonth)}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">3ヶ月</h3>
-                  <p className="text-xl font-bold">{renderPriceChange(fund.returns.threeMonths)}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">6ヶ月</h3>
-                  <p className="text-xl font-bold">{renderPriceChange(fund.returns.sixMonths)}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">1年</h3>
-                  <p className="text-xl font-bold">{renderPriceChange(fund.returns.oneYear)}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">3年</h3>
-                  <p className="text-xl font-bold">{renderPriceChange(fund.returns.threeYears)}</p>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    1ヶ月
+                  </h3>
+                  <div className="flex flex-col gap-2">
+                    <div>
+                      1ヶ月: {renderPriceChange(fund.percentageChange1m)}
+                    </div>
+                    <div>
+                      3ヶ月: {renderPriceChange(fund.percentageChange3m)}
+                    </div>
+                    <div>
+                      6ヶ月: {renderPriceChange(fund.percentageChange6m)}
+                    </div>
+                    <div>1年: {renderPriceChange(fund.percentageChange1y)}</div>
+                    <div>3年: {renderPriceChange(fund.percentageChange3y)}</div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -159,88 +175,33 @@ export default function FundDetailView({ fund }: FundDetailViewProps) {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">標準偏差</h3>
-                  <p className="text-xl font-bold">{fund.risk.standardDeviation.toFixed(2)}%</p>
-                  <p className="text-xs text-muted-foreground">値動きの大きさを示す指標</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">シャープレシオ</h3>
-                  <p className="text-xl font-bold">{fund.risk.sharpeRatio.toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">リスクあたりのリターンを示す指標</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">最大ドローダウン</h3>
-                  <p className="text-xl font-bold">{fund.risk.maxDrawdown.toFixed(2)}%</p>
-                  <p className="text-xs text-muted-foreground">過去の最大下落率</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* 手数料・コストタブ */}
-        <TabsContent value="fee" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>手数料・コスト</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b">
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">購入時手数料</h3>
-                    <p className="text-lg font-bold">{fund.fees.purchaseFee}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">信託財産留保額</h3>
-                    <p className="text-lg font-bold">{fund.fees.redemptionFee}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">運用管理費用（信託報酬）</h3>
-                  <p className="text-lg font-bold">年率 {fund.fees.managementFee}%（税込）</p>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    標準偏差
+                  </h3>
+                  <p className="text-xl font-bold">{fund.risk1y}%</p>
                   <p className="text-xs text-muted-foreground">
-                    内訳: 委託会社 {fund.fees.managementFeeBreakdown.company}%、販売会社{" "}
-                    {fund.fees.managementFeeBreakdown.distributor}%、受託会社 {fund.fees.managementFeeBreakdown.trustee}
-                    %
+                    値動きの大きさを示す指標
                   </p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ファンド情報タブ */}
-        <TabsContent value="info" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>ファンド概要</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">設定日</h3>
-                    <p>{fund.info.inceptionDate}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">償還日</h3>
-                    <p>{fund.info.maturityDate}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">決算日</h3>
-                    <p>{fund.info.dividendFrequency}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">ベンチマーク</h3>
-                    <p>{fund.info.benchmark}</p>
-                  </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    シャープレシオ
+                  </h3>
+                  <div>リスク（1年）: {fund.risk1y}</div>
+                  <div>シャープレシオ（1年）: {fund.riskReturn1y}</div>
+                  <div>リスク（全期間）: {fund.riskFull}</div>
+                  <p className="text-xs text-muted-foreground">
+                    リスクあたりのリターンを示す指標
+                  </p>
                 </div>
-
-                <div className="pt-4 border-t">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-2">ファンドの特色</h3>
-                  <p className="text-sm whitespace-pre-line">{fund.info.description}</p>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    最大ドローダウン
+                  </h3>
+                  <p className="text-xl font-bold">{fund.riskFull}%</p>
+                  <p className="text-xs text-muted-foreground">
+                    過去の最大下落率
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -248,5 +209,5 @@ export default function FundDetailView({ fund }: FundDetailViewProps) {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
