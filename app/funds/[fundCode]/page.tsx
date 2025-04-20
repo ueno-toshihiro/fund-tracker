@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: FundDetailPageProps): Promise
 
   return {
     title: `${fund.fundName} | ファンド詳細`,
-    description: `${fund.fundName}（${fund.fundCode}）の詳細情報、パフォーマンス、リスク指標などをご確認いただけます。`,
+    description: `${fund.fundName}（${fund.fundCd}）の詳細情報、パフォーマンス、リスク指標などをご確認いただけます。`,
   }
 }
 
