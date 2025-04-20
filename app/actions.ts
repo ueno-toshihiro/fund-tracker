@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 
 // KVが利用可能かどうかを確認する関数
 let kvInstance: any = null;
-async function getKV() {
+export async function getKV() {
   if (kvInstance) return kvInstance;
 
   try {
@@ -76,13 +76,17 @@ export async function getFavorites(): Promise<string[]> {
 // 簡易的なユーザーID取得（実際の認証システムに置き換えてください）
 async function getUserId(): Promise<string> {
   const cookieStore = await cookies();
-  let userId = cookieStore.get("userId")?.value;
 
-  // userIdが存在しない場合は新規発行して保存
-  if (!userId) {
-    userId = Math.random().toString(36).substring(2, 15);
-    await cookieStore.set("userId", userId, { maxAge: 60 * 60 * 24 * 30 }); // 30日間有効
-  }
+  return new Promise((resolve) => {
+    const userId = cookieStore.get("userId")?.value;
 
-  return userId;
+    // userIdが存在しない場合は新規発行して保存
+    if (!userId) {
+      const newUserId = Math.random().toString(36).substring(2, 15);
+      cookieStore.set("userId", newUserId, { maxAge: 60 * 60 * 24 * 30 }); // 30日間有効
+      resolve(newUserId);
+    } else {
+      resolve(userId);
+    }
+  });
 }

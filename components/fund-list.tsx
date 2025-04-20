@@ -29,45 +29,23 @@ type SortDirection = "asc" | "desc";
 
 interface FundListProps {
   initialFunds: Fund[];
-  initialFavorites: string[];
 }
-
-// ローカルストレージからお気に入りを取得する関数
-const getLocalFavorites = (): string[] => {
-  if (typeof window === "undefined") return [];
-  const stored = localStorage.getItem("fundFavorites");
-  return stored ? JSON.parse(stored) : [];
-};
-
-// ローカルストレージにお気に入りを保存する関数
-const saveLocalFavorites = (favorites: string[]) => {
-  if (typeof window === "undefined") return;
-  localStorage.setItem("fundFavorites", JSON.stringify(favorites));
-};
-
-export default function FundList({
-  initialFunds,
-  initialFavorites,
-}: FundListProps) {
+export default function FundList({ initialFunds }: FundListProps) {
   const [funds] = useState<Fund[]>(initialFunds);
-  const [favorites, setFavorites] = useState<string[]>(initialFavorites);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState<SortField>("fundName");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [filterFavorites, setFilterFavorites] = useState(false);
   const [useLocalStorage, setUseLocalStorage] = useState(false);
 
-  // コンポーネントマウント時にローカルストレージをチェック
   useEffect(() => {
-    // サーバーから取得したお気に入りが空の場合、ローカルストレージを確認
-    if (initialFavorites.length === 0) {
-      const localFavorites = getLocalFavorites();
-      if (localFavorites.length > 0) {
-        setFavorites(localFavorites);
-        setUseLocalStorage(true);
-      }
-    }
-  }, [initialFavorites]);
+    fetch("/api/favorites")
+      .then((res) => res.json())
+      .then((data) => {
+        setFavorites(data.favorites || []);
+      });
+  }, []);
 
   // お気に入り切り替え
   const handleToggleFavorite = async (fundCode: string) => {
@@ -78,7 +56,6 @@ export default function FundList({
         : [...favorites, fundCode];
 
       setFavorites(newFavorites);
-      saveLocalFavorites(newFavorites);
       return;
     }
 
@@ -94,7 +71,6 @@ export default function FundList({
           : [...favorites, fundCode];
 
         setFavorites(newFavorites);
-        saveLocalFavorites(newFavorites);
       } else if (result.isFavorite !== null) {
         // 通常のKV処理
         if (result.isFavorite) {
@@ -113,7 +89,6 @@ export default function FundList({
       : [...favorites, fundCode];
 
     setFavorites(newFavorites);
-    saveLocalFavorites(newFavorites);
   };
 
   // ソート切り替え
