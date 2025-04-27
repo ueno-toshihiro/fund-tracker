@@ -26,7 +26,7 @@ MUFG Asset Management API を活用した投資信託（ファンド）情報の
 ### バックエンド
 
 - **Next.js API Routes** - サーバーサイド機能
-- **Vercel KV (Redis)** - お気に入り情報の保存（オプション）
+- **Vercel Redis** - お気に入り情報の保存（オプション）
 
 ### インフラ
 
@@ -70,7 +70,7 @@ pnpm install
 
 \`\`\`
 
-# Vercel KV（お気に入り機能用、オプション）
+# Vercel redis（お気に入り機能用、オプション）
 
 KV_REST_API_URL=your_kv_rest_api_url
 KV_REST_API_TOKEN=your_kv_rest_api_token
@@ -85,15 +85,15 @@ npm run dev
 
 ブラウザで [http://localhost:3000](http://localhost:3000) を開いてアプリケーションにアクセスできます。
 
-## Vercel KV の設定（オプション）
+## Vercel Redis の設定（オプション）
 
-お気に入り機能を使用するには、Vercel KV（Redis）の設定が必要です：
+お気に入り機能を使用するには、Vercel Redis（Redis）の設定が必要です：
 
 1. Vercel アカウントにログイン
-2. 新しい KV データベースを作成
+2. 新しい Redis データベースを作成
 3. 生成された環境変数（`KV_REST_API_URL`と`KV_REST_API_TOKEN`）をプロジェクトの環境変数に追加
 
-**注意**: Vercel KV が設定されていない場合、アプリケーションはローカルストレージを使用してお気に入り情報を保存します。
+**注意**: Vercel Redis が設定されていない場合、アプリケーションはローカルストレージを使用してお気に入り情報を保存します。
 
 ## デプロイ
 

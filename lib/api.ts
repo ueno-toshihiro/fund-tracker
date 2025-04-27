@@ -114,7 +114,7 @@ export async function getFunds(): Promise<Fund[]> {
 
     const data = await response.json();
 
-    console.log("API response:", data);
+    // console.log("API response:", data);
 
     // APIレスポンスを整形して返す
     // 注: 実際のAPIレスポンス形式に合わせて調整が必要です
@@ -154,7 +154,7 @@ export async function getFundDetail(
     );
 
     const data = await response.json();
-    console.log("API response: detail", data);
+    // console.log("API response: detail", data);
 
     if (!data.datasets || data.datasets.length === 0) {
       // APIが利用できない場合はモックデータを返す

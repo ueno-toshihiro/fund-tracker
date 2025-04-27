@@ -64,7 +64,7 @@ export default function FundList({ initialFunds }: FundListProps) {
 
     if (result.success) {
       if (result.useLocalStorage) {
-        // KVが利用できない場合はローカルストレージに切り替え
+        // Redisが利用できない場合はローカルストレージに切り替え
         setUseLocalStorage(true);
         const newFavorites = favorites.includes(fundCode)
           ? favorites.filter((code) => code !== fundCode)
@@ -72,7 +72,7 @@ export default function FundList({ initialFunds }: FundListProps) {
 
         setFavorites(newFavorites);
       } else if (result.isFavorite !== null) {
-        // 通常のKV処理
+        // 通常のRedis処理
         if (result.isFavorite) {
           setFavorites([...favorites, fundCode]);
         } else {

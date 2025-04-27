@@ -1,19 +1,19 @@
 "use server";
 
+import { createClient } from "redis";
 import { cookies } from "next/headers";
 
-// KVが利用可能かどうかを確認する関数
-let kvInstance: any = null;
-export async function getKV() {
-  if (kvInstance) return kvInstance;
+// Redisが利用可能かどうかを確認する関数
+let redisInstance: any = null;
+export async function getRedis() {
+  if (redisInstance) return redisInstance;
 
   try {
-    // 動的インポートを使用してKVをロードしようとする
-    const { kv } = await import("@vercel/kv");
-    kvInstance = kv;
-    return kv;
+    const redis = await createClient({ url: process.env.REDIS_URL }).connect();
+    redisInstance = redis;
+    return redis;
   } catch (error) {
-    console.warn("Vercel KV is not available:", error);
+    console.warn("Redis is not available:", error);
     return null;
   }
 }
@@ -22,10 +22,10 @@ export async function getKV() {
 export async function toggleFavorite(fundCode: string) {
   try {
     const userId = await getUserId();
-    const kv = await getKV();
+    const redis = await getRedis();
 
-    if (!kv) {
-      // KVが利用できない場合はクライアント側で処理するためにnullを返す
+    if (!redis) {
+      // Redisが利用できない場合はクライアント側で処理するためにnullを返す
       return { success: true, isFavorite: null, useLocalStorage: true };
     }
 
@@ -34,11 +34,11 @@ export async function toggleFavorite(fundCode: string) {
 
     if (favorites.includes(fundCode)) {
       // お気に入りから削除
-      await kv.srem(key, fundCode);
+      await redis.del(key, fundCode);
       return { success: true, isFavorite: false };
     } else {
       // お気に入りに追加
-      await kv.sadd(key, fundCode);
+      await redis.set(key, fundCode);
       return { success: true, isFavorite: true };
     }
   } catch (error) {
@@ -57,15 +57,15 @@ export async function toggleFavorite(fundCode: string) {
 export async function getFavorites(): Promise<string[]> {
   try {
     const userId = await getUserId();
-    const kv = await getKV();
+    const redis = await getRedis();
 
-    if (!kv) {
-      // KVが利用できない場合は空の配列を返す
+    if (!redis) {
+      // Redisが利用できない場合は空の配列を返す
       return [];
     }
 
     const key = `user:${userId}:favorites`;
-    const favorites = await kv.smembers(key);
+    const favorites = await redis.get(key);
     return favorites || [];
   } catch (error) {
     console.error("Error fetching favorites:", error);
@@ -74,7 +74,7 @@ export async function getFavorites(): Promise<string[]> {
 }
 
 // 簡易的なユーザーID取得（実際の認証システムに置き換えてください）
-async function getUserId(): Promise<string> {
+export async function getUserId(): Promise<string> {
   const cookieStore = await cookies();
 
   return new Promise((resolve) => {
