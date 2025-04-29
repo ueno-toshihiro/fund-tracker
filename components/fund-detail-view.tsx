@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import type { FundDetail } from "@/lib/api";
 import {
   Card,
@@ -11,10 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Star, Share2 } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import Link from "next/link";
-import { toggleFavorite } from "@/app/actions";
-import PerformanceChart from "@/components/performance-chart";
+import { toggleFavorite, getFavorites } from "@/app/actions";
 
 interface FundDetailViewProps {
   fund: FundDetail;
@@ -29,6 +28,13 @@ export default function FundDetailView({ fund }: FundDetailViewProps) {
       setIsFavorite(result.isFavorite);
     }
   };
+
+  useLayoutEffect(() => {
+    getFavorites().then((favorites) => {
+      const isFavorite = favorites.includes(fund.fundCd);
+      setIsFavorite(isFavorite);
+    });
+  }, [fund.fundCd, getFavorites]);
 
   // 価格変動の表示用関数
   const renderPriceChange = (change: string | number) => {

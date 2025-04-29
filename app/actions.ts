@@ -36,7 +36,7 @@ export async function toggleFavorite(fundCode: string) {
       const newFavorites = favorites.filter((code) => code !== fundCode);
       const json = JSON.stringify(newFavorites);
       // お気に入りから削除
-      await redis.del(key, json);
+      await redis.set(key, json);
       return { success: true, isFavorite: false };
     } else {
       const newFavorites = [...favorites, fundCode];
