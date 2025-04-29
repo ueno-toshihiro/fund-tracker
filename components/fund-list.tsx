@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import type { Fund } from "@/lib/api";
-import { toggleFavorite } from "@/app/actions";
+import { getFavorites, toggleFavorite } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,15 +39,18 @@ export default function FundList({ initialFunds }: FundListProps) {
   const [filterFavorites, setFilterFavorites] = useState(false);
   const [useLocalStorage, setUseLocalStorage] = useState(false);
 
+  // お気に入り一覧の取得
+  const favoritesHandler = async () => {
+    const result = await getFavorites();
+    setFavorites(result || []);
+    setFilterFavorites(!filterFavorites);
+  };
+
   useEffect(() => {
-    fetch("/api/favorites")
-      .then((res) => res.json())
-      .then((data) => {
-        setFavorites(data.favorites || []);
-      });
+    favoritesHandler();
   }, []);
 
-  // お気に入り切り替え
+  // 各ファンドのお気に入り切り替え
   const handleToggleFavorite = async (fundCode: string) => {
     // ローカルストレージを使用する場合
     if (useLocalStorage) {
@@ -198,7 +201,7 @@ export default function FundList({ initialFunds }: FundListProps) {
       {useLocalStorage && (
         <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md text-sm text-yellow-800">
           注意: Vercel
-          KVが設定されていないため、お気に入りはローカルストレージに保存されます。
+          Redisが設定されていないため、お気に入りはローカルストレージに保存されます。
         </div>
       )}
 
@@ -214,7 +217,7 @@ export default function FundList({ initialFunds }: FundListProps) {
         <div className="flex gap-2 items-center">
           <Button
             variant={filterFavorites ? "default" : "outline"}
-            onClick={() => setFilterFavorites(!filterFavorites)}
+            onClick={favoritesHandler}
             className="flex items-center gap-1"
           >
             <Star

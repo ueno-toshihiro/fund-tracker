@@ -33,12 +33,16 @@ export async function toggleFavorite(fundCode: string) {
     const favorites = await getFavorites();
 
     if (favorites.includes(fundCode)) {
+      const newFavorites = favorites.filter((code) => code !== fundCode);
+      const json = JSON.stringify(newFavorites);
       // お気に入りから削除
-      await redis.del(key, fundCode);
+      await redis.del(key, json);
       return { success: true, isFavorite: false };
     } else {
+      const newFavorites = [...favorites, fundCode];
+      const json = JSON.stringify(newFavorites);
       // お気に入りに追加
-      await redis.set(key, fundCode);
+      await redis.set(key, json);
       return { success: true, isFavorite: true };
     }
   } catch (error) {
@@ -66,7 +70,7 @@ export async function getFavorites(): Promise<string[]> {
 
     const key = `user:${userId}:favorites`;
     const favorites = await redis.get(key);
-    return favorites || [];
+    return favorites ? JSON.parse(favorites) : [];
   } catch (error) {
     console.error("Error fetching favorites:", error);
     return [];
