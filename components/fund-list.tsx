@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useLayoutEffect } from "react";
 import type { Fund } from "@/lib/api";
 import { getFavorites, toggleFavorite } from "@/app/actions";
 import { Button } from "@/components/ui/button";
@@ -39,19 +39,24 @@ export default function FundList({ initialFunds }: FundListProps) {
   const [filterFavorites, setFilterFavorites] = useState(false);
   const [useLocalStorage, setUseLocalStorage] = useState(false);
 
-  // お気に入り一覧の取得
-  const favoritesHandler = async () => {
-    const result = await getFavorites();
-    setFavorites(result || []);
+  // お気に入り一覧の切り替え
+  const favoritesFilterToggleHandler = async () => {
+    // ローカルストレージにお気に入りフィルタの状態を保存する
+    localStorage.setItem("filterFavorites", String(!filterFavorites));
     setFilterFavorites(!filterFavorites);
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // ローカルストレージからお気に入りフィルタの状態を読み出す
+    const savedFilterFavorites = localStorage.getItem("filterFavorites");
+    if (savedFilterFavorites !== null) {
+      setFilterFavorites(JSON.parse(savedFilterFavorites));
+    }
+    // Redisからお気に入り一覧を取得
     getFavorites().then((result) => {
       if (result) {
         setFavorites(result);
       }
-      setFilterFavorites(result.length > 0);
     });
   }, []);
 
@@ -110,7 +115,7 @@ export default function FundList({ initialFunds }: FundListProps) {
   };
 
   // Load searchTerm from local storage on component mount
-  useEffect(() => {
+  useLayoutEffect(() => {
     const savedSearchTerm = localStorage.getItem("searchTerm");
     if (savedSearchTerm) {
       setSearchTerm(savedSearchTerm);
@@ -222,7 +227,7 @@ export default function FundList({ initialFunds }: FundListProps) {
         <div className="flex gap-2 items-center">
           <Button
             variant={filterFavorites ? "default" : "outline"}
-            onClick={favoritesHandler}
+            onClick={favoritesFilterToggleHandler}
             className="flex items-center gap-1"
           >
             <Star
