@@ -21,12 +21,13 @@ MUFG Asset Management API を活用した投資信託（ファンド）情報の
 - **Tailwind CSS** - スタイリング
 - **MUI** - UI コンポーネントライブラリ
 - **shadcn/ui** - UI コンポーネントライブラリ
-- **Chart.js** - データ可視化
+- **date-fns** - 日付操作ユーティリティ
+- **react-day-picker** - カレンダーUI
 
 ### バックエンド
 
 - **Next.js API Routes** - サーバーサイド機能
-- **Vercel Redis** - お気に入り情報の保存（オプション）
+- **Vercel Redis** - お気に入り情報の保存（オプション、未設定時はlocalStorageを利用）
 
 ### インフラ
 
@@ -60,27 +61,33 @@ MUFG Asset Management API を活用した投資信託（ファンド）情報の
 
 # 依存関係のインストール
 
-\`\`\`bash
+```
 pnpm install
-\`\`\`
+# または
+npm install
+# または
+yarn install
+```
 
 ### 環境変数の設定
 
 `.env.local`ファイルをプロジェクトのルートディレクトリに作成し、以下の環境変数を設定します：
 
-\`\`\`
-
 # Vercel redis（お気に入り機能用、オプション）
 
+```
 REDIS_URL=your_redis_url
-
-\`\`\`
+```
 
 ### 開発サーバーの起動
 
-\`\`\`bash
+```
+pnpm dev
+# または
 npm run dev
-\`\`\`
+# または
+yarn dev
+```
 
 ブラウザで [http://localhost:3000](http://localhost:3000) を開いてアプリケーションにアクセスできます。
 
@@ -106,10 +113,9 @@ npm run dev
 
 または、Vercel CLI を使用：
 
-\`\`\`bash
+```
 npm install -g vercel
-vercel
-\`\`\`
+```
 
 ## API 仕様
 
@@ -124,16 +130,20 @@ https://www.am.mufg.jp/assets/pdf/tool/webapi/fund_api.pdf
 ```
 fund-tracker/
 ├── app/ # Next.js App Router
-│ ├── actions.ts # サーバーアクション
-│ ├── funds/ # ファンド詳細ページ
-│ └── page.tsx # トップページ
+│   ├── actions.ts        # サーバーアクション
+│   ├── funds/           # ファンド詳細ページ
+│   ├── layout.tsx       # レイアウト
+│   ├── page.tsx         # トップページ
+│   └── globals.css      # グローバルCSS
 ├── components/ # React コンポーネント
-│ ├── fund-list.tsx # ファンド一覧コンポーネント
-│ ├── fund-detail-view.tsx # ファンド詳細コンポーネント
-│ └── performance-chart.tsx # パフォーマンスチャート
+│   ├── fund-list.tsx         # ファンド一覧コンポーネント
+│   ├── fund-list-table.tsx   # ファンド一覧テーブル
+│   ├── fund-detail-view.tsx  # ファンド詳細コンポーネント
+│   └── ui/                   # UIパーツ群（shadcn/uiベース）
 ├── lib/ # ユーティリティ関数
-│ ├── api.ts # API 関連の関数
-│ ├── mock-data.ts # モックデータ（開発用）
-│ └── mock-fund-details.ts # 詳細モックデータ
+│   ├── api.ts               # API 関連の関数
+│   ├── mock-data.ts         # モックデータ（開発用）
+│   ├── mock-fund-details.ts # 詳細モックデータ
+│   └── utils.ts             # 汎用ユーティリティ
 └── public/ # 静的ファイル
 ```
