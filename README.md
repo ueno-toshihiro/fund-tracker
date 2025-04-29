@@ -72,8 +72,7 @@ pnpm install
 
 # Vercel redis（お気に入り機能用、オプション）
 
-KV_REST_API_URL=your_kv_rest_api_url
-KV_REST_API_TOKEN=your_kv_rest_api_token
+REDIS_URL=your_redis_url
 
 \`\`\`
 
@@ -90,8 +89,10 @@ npm run dev
 お気に入り機能を使用するには、Vercel Redis（Redis）の設定が必要です：
 
 1. Vercel アカウントにログイン
+
 2. 新しい Redis データベースを作成
-3. 生成された環境変数（`KV_REST_API_URL`と`KV_REST_API_TOKEN`）をプロジェクトの環境変数に追加
+
+3. 生成された環境変数（`REDIS_URL`）をプロジェクトの環境変数に追加
 
 **注意**: Vercel Redis が設定されていない場合、アプリケーションはローカルストレージを使用してお気に入り情報を保存します。
 
