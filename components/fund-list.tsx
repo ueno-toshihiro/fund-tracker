@@ -47,7 +47,12 @@ export default function FundList({ initialFunds }: FundListProps) {
   };
 
   useEffect(() => {
-    favoritesHandler();
+    getFavorites().then((result) => {
+      if (result) {
+        setFavorites(result);
+      }
+      setFilterFavorites(result.length > 0);
+    });
   }, []);
 
   // 各ファンドのお気に入り切り替え
